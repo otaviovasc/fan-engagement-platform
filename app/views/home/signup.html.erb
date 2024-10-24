@@ -1,0 +1,27 @@
+<% content_for :signup_page %> <!-- This signals that we want to load signup.css -->
+
+<head>
+  <%= stylesheet_link_tag 'signup', media: 'all' %> <!-- Load signup.css only for the signup page -->
+</head>
+
+<div class="signup-container d-flex justify-content-center align-items-center">
+  <div class="signup-box text-white text-center">
+    <h1 class="text-warning fw-bold">Mida Music</h1>
+    <h2 class="fw-light mb-4">Create Your Account</h2>
+
+    <div class="signup-buttons">
+      <%= button_to "/auth/spotify", method: :post, class: "btn-signup" do %>
+        <%= image_tag "spotify-icon.png", alt: "Spotify Icon" %> Continue with Spotify
+      <% end %>
+
+      <%= button_to "/auth/google_oauth2", method: :post, class: "btn-signup" do %>
+        <%= image_tag "youtube-icon.png", alt: "Youtube Icon" %> Continue with Youtube
+      <% end %>
+    </div>
+
+    <p class="legal-text mt-4">By continuing you agree to our
+      <a href="#">Terms of Service</a> and
+      <a href="#">Privacy Policy</a>.
+    </p>
+  </div>
+</div>

@@ -1,0 +1,23 @@
+<h2><%= @artist.name %> Leaderboard</h2>
+<% if @artist.image_url %>
+  <img src="<%= @artist.image_url %>" alt="<%= @artist.name %>" class="img-fluid mb-4">
+<% end %>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Rank</th>
+      <th>User</th>
+      <th>Points</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @leaderboard.each_with_index do |stat, index| %>
+      <tr>
+        <td><%= index + 1 %></td>
+        <td><%= stat.user.display_name %></td>
+        <td><%= stat.points %> points</td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

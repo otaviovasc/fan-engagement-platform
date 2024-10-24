@@ -1,0 +1,27 @@
+<h2>Welcome, <%= current_user.display_name %></h2>
+<% if current_user.profile_image_url %>
+  <img src="<%= current_user.profile_image_url %>" alt="Profile Image" class="rounded-circle" width="100">
+<% end %>
+
+<div>
+  <% if current_user.spotify_connected? %>
+    <p>Spotify Account Connected: <%= current_user.display_name %></p>
+  <% else %>
+    <%= button_to 'Add Spotify', '/auth/spotify', method: :post, class: 'btn btn-success btn-lg mt-4' %>
+  <% end %>
+</div>
+
+<div>
+  <% if current_user.youtube_connected? %>
+    <p>YouTube Account Connected: <%= current_user.display_name %></p>
+  <% else %>
+    <%= button_to 'Add YouTube', '/auth/google_oauth2', method: :post, class: 'btn btn-danger btn-lg mt-4' %>
+  <% end %>
+</div>
+
+<h3 class="mt-4">Your Top Artists</h3>
+<div class="list-group">
+  <% @top_artists.each do |artist| %>
+    <%= link_to artist.name, artist_path(artist), class: 'list-group-item list-group-item-action' %>
+  <% end %>
+</div>
