@@ -1,0 +1,94 @@
+<!-- Hero Section -->
+<section class="hero d-flex flex-column justify-content-center align-items-start text-white row">
+  <div class="hero-spacing col-7">
+    <h2 class="fw-bold display-4">Meet your Artist,</h2>
+    <h2 class="fw-bold display-4">earn Rewards</h2>
+    <p class="lead mt-3 text-start mb-0">Discover a platform designed to bridge lasting relationships</p>
+    <p class="lead text-start mb-0">between artists and music lovers. Connect with your idols, compete</p>
+    <p class="lead text-start">for rewards and discover a passionate community.</p>
+    <a href="#" class="btn bg-main-yellow btn-lg mt-4 text-white">Join Waitlist</a>
+  </div>
+</section>
+
+<!-- Purpose Section -->
+
+<section class="container purpose py-5 text-center">
+  <h3 class="fw-bold text-main-yellow mb-4">Our Purpose</h3>
+  <p class="lead text-center">We exist to empower real connections between fans and artists in the digital world.</p>
+</section>
+
+<!-- Stats Section -->
+<section class="container py-5">
+  <p class="text-start text-main-yellow fw-bold">Explore your sound.</p>
+  <h3 class="text-start text-main-yellow fw-bold mb-5 text-black">Your Listening Stats Like Never Before</h3>
+
+  <div class="row text-start">
+    <div class="col-md-4">
+      <div class="stat-card bg-main-yellow text-white rounded-top p-4">
+        <p>Track Your Time</p>
+        <h4>Visualize Your Musical Journey</h4>
+        <p>Get insights into your listening patterns and discover new favorites.</p>
+      </div>
+        <%= image_tag "stat1.jpg", alt: "Track your time image", class: "rounded-bottom stat-img"%>
+    </div>
+
+    <div class="col-md-4">
+      <div class="stat-card bg-main-yellow text-white rounded-top p-4">
+        <p>Meaningful Rewards</p>
+        <h4>Earn Exclusive, Personalized Rewards</h4>
+        <p>Meet your artist in person, earn VIP tickets, receive special gifts, and more.</p>
+      </div>
+        <%= image_tag "stat2.jpg", alt: "Track your time image", class: "rounded-bottom stat-img"%>
+    </div>
+
+    <div class="col-md-4">
+      <div class="stat-card bg-main-yellow text-white rounded-top p-4">
+        <p>Join Our Community</p>
+        <h4>Elevate Your Music Experience</h4>
+        <p>Join like-minded communities and take on even more rewarding missions.</p>
+      </div>
+        <%= image_tag "stat3.jpg", alt: "Track your time image", class: "rounded-bottom stat-img"%>
+    </div>
+  </div>
+</section>
+
+
+<!-- Artists Section -->
+<section class="text-center py-5">
+  <div class="container">
+    <p class="text-start text-main-yellow fw-bold">Who trusts us</p>
+    <h3 class="text-start text-main-yellow fw-bold mb-5 text-black">Our Artists</h3>
+    <div class="d-flex justify-content-center gap-4">
+      <%= image_tag "artist1.jpg", alt: "Artist 1", class: "rounded-circle artist-img", style: "width: 10vw; height: 10vw;"%>
+      <%= image_tag "artist2.jpg", alt: "Artist 2", class: "rounded-circle artist-img", style: "width: 10vw; height: 10vw;"%>
+      <%= image_tag "artist3.jpg", alt: "Artist 3", class: "rounded-circle artist-img", style: "width: 10vw; height: 10vw;"%>
+      <%= image_tag "artist4.jpg", alt: "Artist 4", class: "rounded-circle artist-img", style: "width: 10vw; height: 10vw;"%>
+      <%= image_tag "artist5.jpg", alt: "Artist 5", class: "rounded-circle artist-img", style: "width: 10vw; height: 10vw;"%>
+      <%= image_tag "artist6.jpg", alt: "Artist 6", class: "rounded-circle artist-img", style: "width: 10vw; height: 10vw;"%>
+      <%= image_tag "artist7.jpg", alt: "Artist 7", class: "rounded-circle artist-img", style: "width: 10vw; height: 10vw;"%>
+    </div>
+  </div>
+</section>
+
+<!-- Signup Section -->
+<div class="signup-container d-flex justify-content-center align-items-center texture">
+  <div class="signup-box text-white text-center">
+    <h1 class="text-warning fw-bold">Mida Music</h1>
+    <h2 class="fw-light mb-4">Create Your Account</h2>
+
+    <div class="signup-buttons">
+      <%= button_to "/auth/spotify", method: :post, class: "btn-signup" do %>
+        <%= image_tag "spotify-icon.png", alt: "Spotify Icon" %> Continue with Spotify
+      <% end %>
+
+      <%= button_to "/auth/google_oauth2", method: :post, class: "btn-signup" do %>
+        <%= image_tag "youtube-icon.png", alt: "Youtube Icon" %> Continue with Youtube
+      <% end %>
+    </div>
+
+    <p class="legal-text mt-4">By continuing you agree to our
+      <a href="#">Terms of Service</a> and
+      <a href="#">Privacy Policy</a>.
+    </p>
+  </div>
+</div>

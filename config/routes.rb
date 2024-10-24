@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  root 'home#index'
+  root 'home#lp'
   get '/signup', to: 'home#signup'
 
   # The OmniAuth callback route

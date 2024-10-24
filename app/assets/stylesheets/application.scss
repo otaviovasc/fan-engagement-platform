@@ -18,34 +18,13 @@
  /* Importa a fonte Poppins */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap');
 
+@import "lp";
+@import "signup";
+@import "profile";
+
 body {
   font-family: 'Poppins', sans-serif;
-}
-
-.hero {
-  background-image: url('default2.jpeg'); /* Substitua pela imagem correta */
-  background-size: cover;
-  background-position: center;
-  height: 60vh;
-}
-
-.purpose, .stat-card, .signup-section, footer {
-  font-weight: 400;
-}
-
-.stat-card h4, .purpose h3, .signup-box h3 {
-  font-weight: 700;
-}
-
-footer {
   background-color: #f1f1f1;
-  padding: 3vw;
-  text-align: center;
-  font-size: 1.2vw;
-}
-
-footer a {
-  margin: 0 1vw;
 }
 
 .text-main-yellow {
@@ -55,3 +34,35 @@ footer a {
 .bg-main-yellow {
   background-color: #ffb000;
 }
+
+.navbar-brand {
+  font-size: 2rem; /* Adjust the size as necessary */
+}
+
+@media (min-width: 992px) {
+  .navbar-brand {
+    font-size: 2.5rem; /* Larger size on bigger screens */
+  }
+}
+
+footer {
+  padding: 3vw;
+  text-align: center;
+  font-size: 1.2vw;
+}
+
+footer hr {
+  border: none;
+  border-top: 1px solid black; /* Adds the horizontal line */
+  margin: 1.5rem 0; /* Adjusts spacing around the line */
+}
+
+footer a {
+  margin: 0 1vw;
+  text-decoration: none;
+}
+
+footer a:hover {
+  text-decoration: underline; /* Optional: underline on hover */
+}
+
