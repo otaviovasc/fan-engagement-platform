@@ -1,0 +1,76 @@
+/* The main container that wraps the form (waitlist-container), takes full available space */
+.main-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: calc(100vh - 120px) !important; /* 100% viewport height minus navbar + footer */
+  /* Assuming your navbar and footer are around 60px each, adjust as necessary */
+}
+
+/* Form container */
+.waitlist-container {
+  text-align: center;
+}
+
+/* Title styling */
+.waitlist-container h1 {
+  font-size: 64px;
+  font-weight: bold;
+  color: #fbb03b;
+  margin-bottom: 20px;
+}
+
+/* Subtitle styling */
+.waitlist-container p {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 30px;
+}
+
+/* Input container: Flexbox for aligning the input and button */
+.input-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0;
+  max-width: 500px; /* Limits form width */
+  margin: 0 auto;
+}
+
+/* Email input field */
+.email-input {
+  width: 70%;
+  padding: 12px;
+  border: 2px solid #ccc;
+  border-radius: 50px 0 0 50px;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.email-input:focus {
+  border-color: #fbb03b; /* Border color changes on focus */
+}
+
+/* Submit button */
+.submit-button {
+  padding: 12px 25px;
+  background-color: #fbb03b;
+  border: none;
+  border-radius: 0 50px 50px 0;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.submit-button:hover {
+  background-color: #e5a020;
+}
+
+/* Error messages styling */
+.error-messages {
+  color: red;
+  margin-top: 10px;
+  font-size: 14px;
+}

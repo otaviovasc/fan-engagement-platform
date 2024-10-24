@@ -1,0 +1,21 @@
+<div class="main-content">
+<div class="waitlist-container">
+  <h1>You are Early</h1>
+  <p>Confirm the email received and join the early access</p>
+
+  <%= form_with model: @user_waitlist, url: user_waitlists_path, local: true do |form| %>
+    <div class="input-container">
+      <%= form.email_field :email, placeholder: "Enter your email", class: "email-input" %>
+      <%= form.submit "Request Alpha Access", class: "submit-button" %>
+    </div>
+
+    <% if @user_waitlist.errors.any? %>
+      <div class="error-messages">
+        <% @user_waitlist.errors.full_messages.each do |message| %>
+          <p><%= message %></p>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+</div>
+</div>

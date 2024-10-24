@@ -18,9 +18,10 @@
  /* Importa a fonte Poppins */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap');
 
-@import "lp";
-@import "signup";
-@import "profile";
+@import "home/lp";
+@import "home/signup";
+@import "profiles/show";
+@import "user_waitlist/new";
 
 body {
   font-family: 'Poppins', sans-serif;
@@ -65,4 +66,3 @@ footer a {
 footer a:hover {
   text-decoration: underline; /* Optional: underline on hover */
 }
-

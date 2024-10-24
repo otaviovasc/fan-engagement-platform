@@ -14,4 +14,6 @@ Rails.application.routes.draw do
 
   # Handle OAuth failures
   get '/auth/failure', to: 'sessions#failure'
+
+  resources :user_waitlists, only: [:new, :create]
 end
