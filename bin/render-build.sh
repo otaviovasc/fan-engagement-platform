@@ -6,8 +6,8 @@ set -e
 # Ensure the script is run from the project root
 cd "$(dirname "$0")/.."
 
-# Load environment variables
-source ~/.bash_profile
+# Load environment variables (REMOVE THIS LINE IF NOT NECESSARY)
+# source ~/.bash_profile
 
 # Install dependencies
 bundle install --deployment --without development test
