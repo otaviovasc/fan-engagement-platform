@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_10_24_214010) do
+ActiveRecord::Schema[7.0].define(version: 2024_10_25_135619) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -36,6 +36,20 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_24_214010) do
     t.index ["name"], name: "artists_name_trgm_idx", opclass: :gin_trgm_ops, using: :gin
   end
 
+  create_table "user_tracks", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "track_name"
+    t.string "artist_names"
+    t.string "spotify_track_id"
+    t.datetime "played_at"
+    t.integer "duration_ms"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "artist_id"
+    t.index ["spotify_track_id"], name: "index_user_tracks_on_spotify_track_id"
+    t.index ["user_id"], name: "index_user_tracks_on_user_id"
+  end
+
   create_table "user_waitlists", force: :cascade do |t|
     t.string "email"
     t.boolean "confirmed"
@@ -59,4 +73,5 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_24_214010) do
 
   add_foreign_key "artist_stats", "artists"
   add_foreign_key "artist_stats", "users"
+  add_foreign_key "user_tracks", "users"
 end

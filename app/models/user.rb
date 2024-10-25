@@ -1,6 +1,7 @@
 class User < ApplicationRecord
   has_many :artist_stats, dependent: :destroy
   has_many :artists, through: :artist_stats
+  has_many :user_tracks, dependent: :destroy
 
 
   def spotify_connected?

@@ -12,6 +12,7 @@ class SessionsController < ApplicationController
     case auth.provider
     when 'spotify'
       # Build the parameters conditionally
+      user.ensure_valid_access_token
       spotify_attributes = {
         spotify_id: auth.uid,
         access_token: auth.credentials.token,

@@ -17,40 +17,51 @@ class ProfilesController < ApplicationController
 
 
   # def show
-  #   cache_key = nil
+  #   @top_artists = []
+
   #   if current_user.spotify_connected?
-  #     cache_key = "#{current_user.id}/spotify_top_artists"
-  #     @top_artists = Rails.cache.fetch(cache_key, expires_in: 1.hour) do
+  #     spotify_cache_key = "#{current_user.id}/spotify_top_artists"
+  #     spotify_artists = Rails.cache.fetch(spotify_cache_key, expires_in: 1.hour) do
   #       fetch_user_top_artists_spotify
   #     end
-  #   elsif current_user.youtube_connected?
-  #     cache_key = "#{current_user.id}/youtube_recent_artists"
-  #     @top_artists = Rails.cache.fetch(cache_key, expires_in: 1.hour) do
-  #       fetch_user_recently_played_youtube
-  #     end
-  #   else
-  #     @top_artists = []
+  #     @top_artists.concat(spotify_artists) if spotify_artists
   #   end
 
-  #   # Set the cache expiration time to send to the frontend
-  #   cache_expires_at = Rails.cache.read("#{cache_key}_expires_at") || Time.now + 1.hour
-  #   Rails.cache.write("#{cache_key}_expires_at", cache_expires_at, expires_in: 1.hour)
-  #   @cache_expires_at = cache_expires_at
+  #   if current_user.youtube_connected?
+  #     youtube_cache_key = "#{current_user.id}/youtube_recent_artists"
+  #     youtube_artists = Rails.cache.fetch(youtube_cache_key, expires_in: 1.hour) do
+  #       fetch_user_recently_played_youtube
+  #     end
+  #     @top_artists.concat(youtube_artists) if youtube_artists
+  #   end
 
   #   # Fetch top artists from the database
-  #   @top_artists = current_user.artist_stats.includes(:artist).order(points: :desc).limit(20).map(&:artist)
+  #   @top_artists.concat(current_user.artist_stats.includes(:artist).order(points: :desc).limit(20).map(&:artist))
+
+  #   # Optional: Set cache expiration time for the frontend based on the shortest expiration of the two keys
+  #   spotify_exp = Rails.cache.read("#{spotify_cache_key}_expires_at") if current_user.spotify_connected?
+  #   youtube_exp = Rails.cache.read("#{youtube_cache_key}_expires_at") if current_user.youtube_connected?
+  #   @cache_expires_at = [spotify_exp, youtube_exp].compact.min || (Time.now + 1.hour)
   # end
-
-
 
   private
 
   # Fetch Spotify Top Artists
   def fetch_user_top_artists_spotify
+    current_user.ensure_valid_access_token
+
+    # Fetch and store any new recently played tracks from Spotify
+    fetch_recently_played_tracks
+
     response = HTTParty.get(
       'https://api.spotify.com/v1/me/top/artists',
       headers: { 'Authorization' => "Bearer #{current_user.access_token}" }
     )
+
+    if response.code != 200 || response.parsed_response['items'].nil?
+      Rails.logger.error "Spotify API error: #{response.body}"
+      return []
+    end
 
     artists = response.parsed_response['items']
 
@@ -60,46 +71,62 @@ class ProfilesController < ApplicationController
         a.image_url = artist_data['images'].first['url'] if artist_data['images'].any?
       end
 
-      # Fetch total listening time for this artist
-      total_listening_time = fetch_artist_listening_time(artist_data['id'])
+      # Calculate total listening time for this artist based on last 30 days in UserTrack
+      total_listening_time = calculate_listening_time_for_artist(artist.spotify_id)
 
-      # Update the artist's stats with actual listening time
-      ArtistStat.find_or_create_by(user: current_user, artist: artist) do |stat|
-        stat.points += total_listening_time * 10 # 10 points per minute
-        stat.save
-      end
+      # Update or initialize ArtistStat with points based on last month's listening time
+      artist_stat = ArtistStat.find_or_initialize_by(user: current_user, artist: artist)
+      artist_stat.points = 100 + (total_listening_time * 10)  # Set points based on current listening time
+      artist_stat.save
     end
     artists
   end
 
-  def fetch_artist_listening_time(artist_id)
-    # Call Spotify's 'recently-played' endpoint to get tracks
+  def fetch_recently_played_tracks
+    one_month_ago = 30.days.ago
     response = HTTParty.get(
       'https://api.spotify.com/v1/me/player/recently-played',
       headers: { 'Authorization' => "Bearer #{current_user.access_token}" },
-      query: { time_range: 'medium_term' } # Can be 'medium_term' or 'long_term'
+      query: { limit: 50 }
     )
 
     if response.code == 200
-      tracks = response.parsed_response['items']
-      total_time = 0
-
-      tracks.each do |track|
-        track_artists = track['track']['artists'].map { |artist| artist['id'] }
-
-        if track_artists.include?(artist_id)
-          # Add the track duration to total time (duration is in milliseconds)
-          total_time += track['track']['duration_ms']
-        end
+      tracks = response.parsed_response['items'].select do |track|
+        DateTime.parse(track['played_at']) >= one_month_ago
       end
 
-      # Convert milliseconds to minutes (or your preferred unit)
-      total_time_in_minutes = total_time / 1000 / 60
-      total_time_in_minutes
+      tracks.each do |track|
+        played_at = DateTime.parse(track['played_at'])
+        spotify_track_id = track['track']['id']
+        artist_id = track['track']['artists'].first['id']  # Assuming the first artist is the main artist
+
+        # Store each play as a new entry if it hasn't been stored yet
+        unless current_user.user_tracks.where(spotify_track_id: spotify_track_id).where("played_at = ?", played_at).exists?
+          current_user.user_tracks.create(
+            track_name: track['track']['name'],
+            artist_names: track['track']['artists'].map { |artist| artist['name'] }.join(", "),
+            spotify_track_id: spotify_track_id,
+            artist_id: artist_id,  # Save the main artist's ID
+            played_at: played_at,
+            duration_ms: track['track']['duration_ms']
+          )
+        end
+      end
     else
       Rails.logger.error "Error fetching recently played tracks: #{response.body}"
-      0
     end
+  end
+
+  def calculate_listening_time_for_artist(artist_id)
+    one_month_ago = 30.days.ago
+
+    # Calculate total time in minutes for the given artist
+    user_tracks = current_user.user_tracks
+                              .where("played_at >= ?", one_month_ago)
+                              .where(artist_id: artist_id)
+
+    total_time = user_tracks.sum { |track| track.duration_ms } / 1000 / 60  # in minutes
+    total_time
   end
 
   # Fetch YouTube Recently Played Videos and Assign Points
@@ -170,13 +197,21 @@ class ProfilesController < ApplicationController
         # Calculate points for this artist
         artist_stat = ArtistStat.find_or_initialize_by(user: current_user, artist: artist)
 
-        # Check if the user is subscribed to the artist's YouTube channel
-        if user_subscribed_to_channel?(channel_id)
-          artist_stat.points += 100 # 100 points for being subscribed
+        # Track processed videos to avoid duplicating points
+        unless artist_stat.processed_videos.include?(video_id)
+          # Calculate points only if the video hasn't been processed before
+          artist_stat.processed_videos << video_id
+
+          # Check if the user is subscribed to the artist's YouTube channel
+          if user_subscribed_to_channel?(channel_id)
+            artist_stat.points += 100 # 100 points for being subscribed (only if not added before)
+          end
+
+          # Add points for each new liked video
+          artist_stat.points += 40 # 40 points per new liked video
         end
 
-        # Add 20 points for each liked video
-        artist_stat.points += 40
+        # Update processed_videos and save the updated stats
         artist_stat.updated_at = Time.now
         artist_stat.save
       else
