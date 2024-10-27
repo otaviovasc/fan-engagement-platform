@@ -3,7 +3,7 @@ Rails.application.routes.draw do
   get '/signup', to: 'home#signup'
 
   # The OmniAuth callback route
-  get '/auth/:provider/callback', to: 'sessions#create'
+  get '/auth/:provider/callback', to: 'sessions#omniauth_callback'
 
   # Login and Logout routes
   delete '/logout', to: 'sessions#destroy'

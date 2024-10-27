@@ -1,61 +1,17 @@
 class SessionsController < ApplicationController
-  skip_before_action :verify_authenticity_token, only: :create  # Skip CSRF check for OAuth callbacks
+  skip_before_action :verify_authenticity_token, only: [:omniauth_callback]
 
-  def passthru
-    render plain: "OmniAuth is not responding.", status: 404
-  end
-
-  def create
+  # Handle OmniAuth callback for both signup and account linking
+  def omniauth_callback
     auth = request.env['omniauth.auth']
-    user = current_user || User.find_or_create_by(email: auth.info.email)
 
-    case auth.provider
-    when 'spotify'
-      # Build the parameters conditionally
-      user.ensure_valid_access_token
-      spotify_attributes = {
-        spotify_id: auth.uid,
-        access_token: auth.credentials.token,
-        refresh_token: auth.credentials.refresh_token
-      }
-
-      # Only update display_name if it's blank
-      if user.display_name.blank?
-        spotify_attributes[:display_name] = auth.info.display_name || auth.info.name || "Spotify User"
-      end
-
-      # Only update profile_image_url if it's blank
-      if user.profile_image_url.blank?
-        spotify_attributes[:profile_image_url] = extract_image_url(auth.info.images)
-      end
-
-      # Update the user with the built attributes
-      user.update(spotify_attributes) unless user.spotify_id.present?
-
-    when 'google_oauth2'
-      # Build the parameters conditionally
-      youtube_attributes = {
-        youtube_id: auth.uid,
-        youtube_access_token: auth.credentials.token,
-        youtube_refresh_token: auth.credentials.refresh_token
-      }
-
-      # Only update display_name if it's blank
-      if user.display_name.blank?
-        youtube_attributes[:display_name] = auth.info.name || "YouTube User"
-      end
-
-      # Only update profile_image_url if it's blank
-      if user.profile_image_url.blank?
-        youtube_attributes[:profile_image_url] = auth.info.image
-      end
-
-      # Update the user with the built attributes
-      user.update(youtube_attributes) unless user.youtube_id.present?
+    if current_user
+      # Existing user: link the new account
+      link_account(auth)
+    else
+      # New user: create a new account
+      create_account(auth)
     end
-
-    session[:user_id] = user.id
-    redirect_to profile_path
   end
 
   def destroy
@@ -65,10 +21,82 @@ class SessionsController < ApplicationController
   end
 
   def failure
-    redirect_to root_path, alert: 'Authentication failed.'
+    redirect_to new_user_waitlist_path, alert: 'User not allowed.'
   end
 
   private
+
+  def link_account(auth)
+    user = current_user  # We are sure the user is already logged in
+
+    case auth.provider
+    when 'spotify'
+      spotify_attributes = {
+        spotify_id: auth.uid,
+        access_token: auth.credentials.token,
+        refresh_token: auth.credentials.refresh_token,
+        display_name: auth.info.name || user.display_name || "Spotify User",  # Ensure display_name is updated
+        spotify_profile_url: auth.info.urls.spotify,  # Add Spotify profile URL
+        profile_image_url: extract_image_url(auth.info.images) || user.profile_image_url  # Ensure profile_image_url is updated
+      }
+
+      # Link Spotify to the existing user
+      user.update(spotify_attributes)
+
+    when 'google_oauth2'
+      youtube_attributes = {
+        youtube_id: auth.uid,
+        youtube_access_token: auth.credentials.token,
+        youtube_refresh_token: auth.credentials.refresh_token,
+        display_name: auth.info.name || user.display_name || "YouTube User",
+        profile_image_url: auth.info.image || user.profile_image_url
+      }
+
+      # Link YouTube to the existing user
+      user.update(youtube_attributes)
+    end
+
+    redirect_to profile_path, notice: "Account successfully linked!"
+  end
+
+
+  def create_account(auth)
+    # Try to find the user by email, YouTube ID, or Spotify ID
+    user = User.find_by(email: auth.info.email) ||
+           User.find_by(spotify_id: auth.uid) ||
+           User.find_by(youtube_id: auth.uid)
+
+    # If no user is found, initialize a new user (signing up)
+    user ||= User.new(email: auth.info.email)
+
+    case auth.provider
+    when 'spotify'
+      spotify_attributes = {
+        spotify_id: auth.uid,
+        access_token: auth.credentials.token,
+        refresh_token: auth.credentials.refresh_token,
+        display_name: auth.info.name || user.display_name || "Spotify User",  # Ensure display_name is updated
+        spotify_profile_url: auth.info.urls.spotify,  # Add Spotify profile URL
+        profile_image_url: extract_image_url(auth.info.images) || user.profile_image_url  # Ensure profile_image_url is updated
+      }
+
+      user.update(spotify_attributes)
+    when 'google_oauth2'
+      youtube_attributes = {
+        youtube_id: auth.uid,
+        youtube_access_token: auth.credentials.token,
+        youtube_refresh_token: auth.credentials.refresh_token,
+        display_name: auth.info.name || "YouTube User",
+        profile_image_url: auth.info.image
+      }
+
+      user.update(youtube_attributes)
+    end
+
+    # Save the user in the session
+    session[:user_id] = user.id
+    redirect_to profile_path
+  end
 
   def extract_image_url(images)
     images&.first&.fetch('url', nil)

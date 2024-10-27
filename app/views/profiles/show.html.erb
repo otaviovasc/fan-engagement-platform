@@ -1,28 +1,140 @@
-<h2>Welcome, <%= current_user.display_name %></h2>
-<% if current_user.profile_image_url %>
-  <img src="<%= current_user.profile_image_url %>" alt="Profile Image" class="rounded-circle" width="100">
-<% end %>
+<i class="bi bi-1-circle"></i>
+<div class="container-fluid mt-4">
+  <div class="row">
+    <!-- Left Sidebar -->
+    <div class="col-md-3">
+      <div class="card p-3">
+        <div class="d-flex align-items-center mb-4">
+          <!-- Profile Image -->
+          <% if current_user.profile_image_url %>
+            <img src="<%= current_user.profile_image_url %>" alt="Profile Image" class="rounded-circle me-3" width="60">
+          <% else %>
+            <%= image_tag 'default-user.png', alt:"Profile Image", class:"rounded-circle me-3", width:"60" %>
+          <% end %>
+          <!-- User Name -->
+          <h2 class="mb-0"><%= current_user.display_name %></h2>
+        </div>
 
-<div>
-  <% if current_user.spotify_connected? %>
-    <p>Spotify Account Connected: <%= current_user.display_name %></p>
-  <% else %>
-    <%= button_to 'Add Spotify', '/auth/spotify', method: :post, class: 'btn btn-success btn-lg mt-4' %>
-  <% end %>
+        <!-- Social Media Buttons -->
+        <div class="d-flex align-items-center justify-content-start mb-3">
+          <!-- Spotify Status Button (2/3 space) -->
+          <div class="flex-grow-1 me-2">
+            <button class="btn btn-account-status" disabled
+              <% if current_user.spotify_connected? %>
+                style="background-color: #1DB954; color: white;"
+              <% else %>
+                style="border: 2px solid #000000; color: #000000;"
+              <% end %>>
+              Spotify
+            </button>
+          </div>
+
+          <!-- YouTube Status Button (2/3 space) -->
+          <div class="flex-grow-1 me-2">
+            <button class="btn btn-account-status" disabled
+              <% if current_user.youtube_connected? %>
+                style="background-color: #FF0000; color: white;"
+              <% else %>
+                style="border: 2px solid #000000; color: #000000;"
+              <% end %>>
+              YouTube
+            </button>
+          </div>
+
+          <!-- + Button (1/3 space, always yellow) -->
+          <div>
+            <% if !current_user.spotify_connected? %>
+              <%= button_to '/auth/spotify', method: :post, class: 'btn btn-circle', id: 'connect-button' do %>
+                <i class="fas fa-plus text-white"></i>  <!-- FontAwesome Plus Icon -->
+              <% end %>
+            <% elsif !current_user.youtube_connected? %>
+              <%= button_to '/auth/google_oauth2', method: :post, class: 'btn btn-circle', id: 'connect-button' do %>
+                <i class="fas fa-plus text-white"></i>  <!-- FontAwesome Plus Icon -->
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="d-flex align-content-center mt-3">
+          <i class="fa-solid fa-magnifying-glass m-2 " style="font-size: 1.4rem;"></i>
+          <input type="text" class="form-control rounded-pill search-input" placeholder="Search your favorite artist" id="artist-search">
+        </div>
+
+        <!-- Top Artists List -->
+        <h3 class="mt-4">Your Top Artists</h3>
+        <ul class="list-group mt-3">
+          <% @top_artists.each do |artist| %>
+            <li class="list-group-item d-flex align-items-center artist-item" data-artist-id="<%= artist.id %>">
+              <!-- Artist Image -->
+              <% if artist.image_url %>
+                <img src="<%= artist.image_url %>" alt="<%= artist.name %>" class="rounded-circle me-3" width="50">
+              <% else %>
+                <%= image_tag 'default-user.png', alt:"Artist with no image", class:"rounded-circle me-3", width:"50" %>
+              <% end %>
+              <!-- Artist Name (aligned left) -->
+              <span class="artist-name"><%= artist.name %></span>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Central Section (Leaderboard) wrapped in a Turbo Frame -->
+    <div class="col-md-6">
+      <turbo-frame id="leaderboard">
+        <div class="card p-5 text-center">
+          <h3>Select an artist to see the leaderboard</h3>
+        </div>
+      </turbo-frame>
+    </div>
+
+
+    <!-- Season Rewards and Daily Missions -->
+    <div class="col-md-3">
+      <div class="card p-3">
+        <h5>Season Rewards</h5>
+        <div class="reward-section text-center">
+          <h6>1st Place</h6>
+          <p>Flight To See Drake</p>
+        </div>
+
+        <h5 class="mt-4">Daily Missions</h5>
+        <ul class="list-group">
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            Listen to Drake Three Times
+            <span class="badge bg-primary">300 Pts</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            Repost Drake's Latest Music
+            <span class="badge bg-primary">200 Pts</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            Add a Music to Your Playlist
+            <span class="badge bg-primary">100 Pts</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            Pre-Save New Song on Spotify
+            <span class="badge bg-primary">100 Pts</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
 </div>
 
-<div>
-  <% if current_user.youtube_connected? %>
-    <p>YouTube Account Connected: <%= current_user.display_name %></p>
-  <% else %>
-    <%= button_to 'Add YouTube', '/auth/google_oauth2', method: :post, class: 'btn btn-danger btn-lg mt-4' %>
-  <% end %>
-</div>
+<script>
+document.addEventListener('turbo:load', function() {
+  // Add click event listener to all artist items
+  document.querySelectorAll('.artist-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+      var artistId = this.getAttribute('data-artist-id'); // Get artist ID from data attribute
 
-<h3 class="mt-4">Your Top Artists</h3>
-<div class="list-group">
-  <% @top_artists.each do |artist| %>
-    <%= link_to artist.name, artist_path(artist), class: 'list-group-item list-group-item-action' %>
-  <% end %>
-</div>
+      // Use Turbo to visit the artist's path and load into leaderboard frame
+      Turbo.visit(`/artist/${artistId}`, { action: 'replace', frame: 'leaderboard' });
+    });
+  });
 
+});
+</script>

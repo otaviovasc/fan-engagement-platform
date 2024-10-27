@@ -3,7 +3,7 @@ class User < ApplicationRecord
   has_many :artists, through: :artist_stats
   has_many :user_tracks, dependent: :destroy
 
-
+  # Check if user is connected to Spotify
   def spotify_connected?
     access_token.present? && spotify_id.present?
   end
@@ -13,12 +13,17 @@ class User < ApplicationRecord
     youtube_access_token.present?
   end
 
+  # Check if Spotify access token is valid
   def access_token_valid?
-    # Implement logic to check if the token is still valid
-    # For simplicity, assume token expires in 1 hour
     (self.updated_at + 1.hour) > Time.now
   end
 
+  # Check if YouTube access token is valid
+  def youtube_access_token_valid?
+    (self.updated_at + 1.hour) > Time.now
+  end
+
+  # Refresh Spotify access token
   def refresh_access_token
     response = HTTParty.post('https://accounts.spotify.com/api/token', body: {
       grant_type: 'refresh_token',
@@ -33,7 +38,30 @@ class User < ApplicationRecord
     end
   end
 
+  # Refresh YouTube access token
+  def refresh_youtube_access_token
+    response = HTTParty.post('https://oauth2.googleapis.com/token', body: {
+      grant_type: 'refresh_token',
+      refresh_token: self.youtube_refresh_token,
+      client_id: ENV['YOUTUBE_CLIENT_ID'],
+      client_secret: ENV['YOUTUBE_CLIENT_SECRET']
+    })
+
+    if response.code == 200
+      self.update(youtube_access_token: response.parsed_response['access_token'])
+    else
+      Rails.logger.error "YouTube token refresh failed: #{response.body}"
+      false
+    end
+  end
+
+  # Ensure Spotify access token is valid
   def ensure_valid_access_token
     refresh_access_token unless access_token_valid?
+  end
+
+  # Ensure YouTube access token is valid
+  def ensure_valid_youtube_access_token
+    refresh_youtube_access_token unless youtube_access_token_valid?
   end
 end

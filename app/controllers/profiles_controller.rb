@@ -2,19 +2,27 @@ class ProfilesController < ApplicationController
   before_action :authenticate_user!
 
   def show
-    # Fetch data from both platforms if connected
+    # Cache key for Spotify top artists
+    spotify_cache_key = "user/#{current_user.id}/spotify_top_artists"
+    youtube_cache_key = "user/#{current_user.id}/youtube_recent_artists"
+
+    # Fetch Spotify data only if the user is connected and data is not cached or expired
     if current_user.spotify_connected?
-      fetch_user_top_artists_spotify
+      @spotify_top_artists = Rails.cache.fetch(spotify_cache_key, expires_in: 1.hour) do
+        fetch_user_top_artists_spotify
+      end
     end
 
+    # Fetch YouTube data only if the user is connected and data is not cached or expired
     if current_user.youtube_connected?
-      fetch_user_recently_played_youtube
+      @youtube_recent_artists = Rails.cache.fetch(youtube_cache_key, expires_in: 1.hour) do
+        fetch_user_recently_played_youtube
+      end
     end
 
     # Fetch top artists from the database based on ArtistStat points
     @top_artists = current_user.artist_stats.includes(:artist).order(points: :desc).limit(20).map(&:artist)
   end
-
 
   # def show
   #   @top_artists = []

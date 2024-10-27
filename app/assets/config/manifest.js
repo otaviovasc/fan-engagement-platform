@@ -3,3 +3,5 @@
 //= link_directory ../stylesheets/profiles .scss
 //= link_directory ../stylesheets/user_waitlist .scss
 //= link_directory ../stylesheets .css
+//= link_tree ../../javascript .js
+//= link_tree ../../../vendor/javascript .js

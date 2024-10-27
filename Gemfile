@@ -25,8 +25,14 @@ gem 'omniauth-google-oauth2'
 gem 'omniauth-rails_csrf_protection'
 gem 'dotenv-rails', groups: [:development, :test]
 
+gem 'turbo-rails'
+gem 'importmap-rails'
+gem "stimulus-rails"
+
 # For making HTTP requests
 gem 'httparty'
+
+gem "faker"
 
 # Use Redis adapter to run Action Cable in production
 # gem "redis", "~> 4.0"

@@ -144,5 +144,32 @@ def fetch_artist_details(access_token, artist_id)
   JSON.parse(response.body)
 end
 
-# Run the seeding process
-seed_artists
+# Run the spotify Artists seeding process
+# seed_artists
+
+# Seed users
+require 'faker'
+
+# Create 19 fake users
+14.times do
+  user = User.create!(
+    email: Faker::Internet.email,
+    display_name: Faker::Name.name,
+    spotify_id: Faker::Alphanumeric.alphanumeric(number: 10),
+    profile_image_url: Faker::Avatar.image,
+    spotify_profile_url: "https://open.spotify.com/user/#{Faker::Alphanumeric.alphanumeric(number: 10)}"
+  )
+  puts "Created user: #{user.display_name}"
+
+  # Assign artist stats for every existing artist to this user
+  Artist.find_each do |artist|
+    ArtistStat.create!(
+      user: user,
+      artist: artist,
+      points: rand(1..1000)  # Assign random points between 1 and 1000
+    )
+  end
+  puts "Assigned artist stats for user: #{user.display_name}"
+end
+
+puts "Seeding completed with 19 users and artist stats for every artist!"

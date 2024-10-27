@@ -1,0 +1,31 @@
+<!-- app/views/artists/_leaderboard.html.erb -->
+<turbo-frame id="leaderboard">
+  <div class="card p-3">
+  <p class="lead text-start">Artist</p>
+    <h1 class="text-start text-main-yellow mb-3 fw-bold display-4"><%= artist.name %></h1>
+    <h4>Leaderboard</h4>
+    <ul class="list-group">
+      <% leaderboard.each_with_index do |stat, index| %>
+        <li class="list-group-item leaderboard-entry d-flex justify-content-between align-items-center">
+          <!-- Position the user's name and points on the same line -->
+          <div class="d-flex align-items-center">
+            <span><%= index + 1 %>. <%= stat.user.display_name %></span>
+          </div>
+
+          <!-- Points and Spotify icon container -->
+          <div class="d-flex align-items-center">
+            <span class="me-2"><%= stat.points %> pts</span>  <!-- Points with right margin -->
+            <% if stat.user.spotify_id.present? %>
+              <%= image_tag "spotify-icon.png", alt: "Spotify Icon", class: "spotify-icon" %>
+            <%end%>
+
+            <%if stat.user.youtube_id.present?%>
+              <%= image_tag "youtube-icon.png", alt: "Spotify Icon", class: "spotify-icon" %>
+            <%end%>
+
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+</turbo-frame>
