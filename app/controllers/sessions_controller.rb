@@ -1,5 +1,5 @@
 class SessionsController < ApplicationController
-  skip_before_action :verify_authenticity_token, only: [:omniauth_callback]
+  skip_before_action :verify_authenticity_token, only: [:omniauth_callback, :link_account, :create_account]
 
   # Handle OmniAuth callback for both signup and account linking
   def omniauth_callback
@@ -7,9 +7,11 @@ class SessionsController < ApplicationController
 
     if current_user
       # Existing user: link the new account
+      puts "Current user: #{current_user.email}"
       link_account(auth)
     else
       # New user: create a new account
+      puts "New user: #{auth.info.email}"
       create_account(auth)
     end
   end
@@ -28,9 +30,11 @@ class SessionsController < ApplicationController
 
   def link_account(auth)
     user = current_user  # We are sure the user is already logged in
+    puts "Linking account for #{user.email}"
 
     case auth.provider
     when 'spotify'
+      user.ensure_valid_access_token
       spotify_attributes = {
         spotify_id: auth.uid,
         access_token: auth.credentials.token,
@@ -44,6 +48,7 @@ class SessionsController < ApplicationController
       user.update(spotify_attributes)
 
     when 'google_oauth2'
+      user.ensure_valid_youtube_access_token
       youtube_attributes = {
         youtube_id: auth.uid,
         youtube_access_token: auth.credentials.token,
@@ -71,6 +76,7 @@ class SessionsController < ApplicationController
 
     case auth.provider
     when 'spotify'
+      user.ensure_valid_access_token
       spotify_attributes = {
         spotify_id: auth.uid,
         access_token: auth.credentials.token,
@@ -82,6 +88,7 @@ class SessionsController < ApplicationController
 
       user.update(spotify_attributes)
     when 'google_oauth2'
+      user.ensure_valid_youtube_access_token
       youtube_attributes = {
         youtube_id: auth.uid,
         youtube_access_token: auth.credentials.token,

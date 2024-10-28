@@ -77,11 +77,11 @@
     <h2 class="fw-light mb-4">Create Your Account</h2>
 
     <div class="signup-buttons">
-      <%= button_to "/auth/spotify", method: :post, class: "btn-signup" do %>
+      <%= button_to "/auth/spotify", method: :post, data: { turbo: false }, class: "btn-signup" do %>
         <%= image_tag "spotify-icon.png", alt: "Spotify Icon" %> Continue with Spotify
       <% end %>
 
-      <%= button_to "/auth/google_oauth2", method: :post, class: "btn-signup" do %>
+      <%= button_to "/auth/google_oauth2", method: :post, data: { turbo: false }, class: "btn-signup" do %>
         <%= image_tag "youtube-icon.png", alt: "Youtube Icon" %> Continue with Youtube
       <% end %>
     </div>
