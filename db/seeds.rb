@@ -151,7 +151,7 @@ end
 require 'faker'
 
 # Create 19 fake users
-14.times do
+21.times do
   user = User.create!(
     email: Faker::Internet.email,
     display_name: Faker::Name.name,

@@ -1,31 +1,45 @@
-<!-- app/views/artists/_leaderboard.html.erb -->
 <turbo-frame id="leaderboard">
   <div class="card p-3">
-  <p class="lead text-start">Artist</p>
+    <p class="lead text-start">Artist</p>
     <h1 class="text-start text-main-yellow mb-3 fw-bold display-4"><%= artist.name %></h1>
     <h4>Leaderboard</h4>
-    <ul class="list-group">
+    <ul class="list-group" id="leaderboard-list" data-controller="current-user-highlight">
+      <% user_position = nil %>
       <% leaderboard.each_with_index do |stat, index| %>
-        <li class="list-group-item leaderboard-entry d-flex justify-content-between align-items-center">
-          <!-- Position the user's name and points on the same line -->
+        <% css_class = stat.user == current_user ? "leaderboard-entry highlighted" : "leaderboard-entry" %>
+        <% user_position = index + 1 if stat.user == current_user %>
+        <li class="list-group-item <%= css_class %> d-flex justify-content-between align-items-center" <% if stat.user == current_user %>id="current-user-entry"<% end %>>
           <div class="d-flex align-items-center">
             <span><%= index + 1 %>. <%= stat.user.display_name %></span>
           </div>
 
-          <!-- Points and Spotify icon container -->
           <div class="d-flex align-items-center">
-            <span class="me-2"><%= stat.points %> pts</span>  <!-- Points with right margin -->
+            <span class="me-2"><%= stat.points %> pts</span>
             <% if stat.user.spotify_id.present? %>
               <%= image_tag "spotify-icon.png", alt: "Spotify Icon", class: "spotify-icon" %>
-            <%end%>
+            <% end %>
 
-            <%if stat.user.youtube_id.present?%>
-              <%= image_tag "youtube-icon.png", alt: "Spotify Icon", class: "spotify-icon" %>
-            <%end%>
-
+            <% if stat.user.youtube_id.present? %>
+              <%= image_tag "youtube-icon.png", alt: "YouTube Icon", class: "spotify-icon" %>
+            <% end %>
           </div>
         </li>
       <% end %>
+
+        <li id="current-user-entry" class="list-group-item highlighted d-flex justify-content-between align-items-center fixed-user-card">
+          <div class="d-flex align-items-center">
+            <span> <%= user_position || "-" %>. <%= current_user.display_name %></span>
+          </div>
+          <div class="d-flex align-items-center">
+            <span class="me-2"><%= current_user_stat&.points || 0 %> pts</span>
+            <% if current_user.spotify_id.present? %>
+              <%= image_tag "spotify-icon.png", alt: "Spotify Icon", class: "spotify-icon" %>
+            <% end %>
+            <% if current_user.youtube_id.present? %>
+              <%= image_tag "youtube-icon.png", alt: "YouTube Icon", class: "spotify-icon" %>
+            <% end %>
+          </div>
+        </li>
     </ul>
   </div>
 </turbo-frame>
