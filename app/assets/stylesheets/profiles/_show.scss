@@ -114,6 +114,7 @@ ul.list-group .list-group-item .text-dark {
 
 .badge {
   font-size: 16px;
+
 }
 
 
@@ -172,4 +173,43 @@ ul.list-group .list-group-item .text-dark {
 .list-group-item.highlighted {
   background-color: #f6ae36; /* Match the highlighted color */
   color: #ffffff;
+}
+
+
+.reward-carousel {
+  .carousel-inner {
+    p {
+      color: #ffffff;
+    }
+
+    .text-place{
+      color: #fffa00;
+    }
+
+    .reward-card {
+      padding: 20px;
+      border-radius: 8px;
+    }
+
+    .reward-icon {
+      font-size: 48px;
+      color: #ffffff; // Yellow color for icon
+    }
+
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+      background-color: #ffeb3b;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+    }
+  }
+}
+
+.mission-item {
+  background-color: #fff8e1; // Light yellow background for items
+  .badge {
+    font-size: 14px;
+    font-weight: bold;
+  }
 }
