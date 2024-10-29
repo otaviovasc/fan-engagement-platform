@@ -2,6 +2,10 @@ class ArtistsController < ApplicationController
   before_action :authenticate_user!
 
   def show
+    unless turbo_frame_request?
+      redirect_to profile_path
+      return
+    end
     @artist = Artist.find(params[:id])
 
     if @artist

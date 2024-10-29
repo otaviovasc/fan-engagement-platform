@@ -172,4 +172,4 @@ require 'faker'
   puts "Assigned artist stats for user: #{user.display_name}"
 end
 
-puts "Seeding completed with 19 users and artist stats for every artist!"
+puts "Seeding completed with 21 users and artist stats for every artist!"
