@@ -4,4 +4,10 @@ class HomeController < ApplicationController
 
   def signup
   end
+
+  def privacy
+  end
+
+  def terms
+  end
 end

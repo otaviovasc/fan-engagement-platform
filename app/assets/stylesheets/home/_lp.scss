@@ -22,9 +22,15 @@
 }
 
 .hero-spacing {
-  padding-left: 3vw;
-  padding-right: 4vw;
+  margin-left: 3vw;
+  margin-right: 4vw;
   z-index: 2;
+  // Hide <p> tags and adjust spacing in mobile view
+  @media (max-width: 767px) {
+   p {
+     display: none; // Hide paragraphs in mobile view
+   }
+  }
 }
 
 .purpose, .stat-card, .signup-section, footer {

@@ -1,6 +1,8 @@
 Rails.application.routes.draw do
   root 'home#lp'
   get '/signup', to: 'home#signup'
+  get '/privacy', to: 'home#privacy'
+  get '/terms', to: 'home#terms'
 
   # The OmniAuth callback route
   get '/auth/:provider/callback', to: 'sessions#omniauth_callback'
