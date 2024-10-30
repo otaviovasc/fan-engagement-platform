@@ -8,29 +8,29 @@
 # require 'base64'
 
 # # Function to get Spotify access token using Client Credentials Flow
-# def get_spotify_access_token
-#   client_id = ENV['SPOTIFY_CLIENT_ID']
-#   client_secret = ENV['SPOTIFY_CLIENT_SECRET']
-#   raise "Please set SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET environment variables" unless client_id && client_secret
+def get_spotify_access_token
+  client_id = ENV['SPOTIFY_CLIENT_ID']
+  client_secret = ENV['SPOTIFY_CLIENT_SECRET']
+  raise "Please set SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET environment variables" unless client_id && client_secret
 
-#   auth_token = Base64.strict_encode64("#{client_id}:#{client_secret}")
+  auth_token = Base64.strict_encode64("#{client_id}:#{client_secret}")
 
-#   uri = URI('https://accounts.spotify.com/api/token')
-#   request = Net::HTTP::Post.new(uri)
-#   request['Authorization'] = "Basic #{auth_token}"
-#   request.set_form_data('grant_type' => 'client_credentials')
+  uri = URI('https://accounts.spotify.com/api/token')
+  request = Net::HTTP::Post.new(uri)
+  request['Authorization'] = "Basic #{auth_token}"
+  request.set_form_data('grant_type' => 'client_credentials')
 
-#   response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
-#     http.request(request)
-#   end
+  response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
+    http.request(request)
+  end
 
-#   json = JSON.parse(response.body)
-#   access_token = json['access_token']
+  json = JSON.parse(response.body)
+  access_token = json['access_token']
 
-#   raise "Failed to obtain Spotify access token: #{json}" unless access_token
+  raise "Failed to obtain Spotify access token: #{json}" unless access_token
 
-#   access_token
-# end
+  access_token
+end
 
 # # Function to fetch popular playlists for a specific category across countries
 # def fetch_popular_playlists(access_token, category)
