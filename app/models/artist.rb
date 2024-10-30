@@ -1,6 +1,7 @@
 class Artist < ApplicationRecord
   has_many :artist_stats
   has_many :users, through: :artist_stats
+  has_one :artist_mapping, foreign_key: :spotify_id, primary_key: :spotify_id
 
   def self.find_by_fuzzy_name(name)
     where("similarity(name, ?) > 0.6", name)

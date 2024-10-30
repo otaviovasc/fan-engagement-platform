@@ -147,29 +147,100 @@ end
 # Run the spotify Artists seeding process
 # seed_artists
 
+require 'httparty'
+
+require 'httparty'
+require 'uri'
+
+def fetch_spotify_artist_id(artist_name, access_token)
+  response = HTTParty.get("https://api.spotify.com/v1/search",
+                          headers: { "Authorization" => "Bearer #{access_token}" },
+                          query: { q: artist_name, type: 'artist', limit: 1 })
+
+  if response.code == 200 && response["artists"]["items"].any?
+    spotify_id = response["artists"]["items"].first["id"]
+    puts "Spotify ID for '#{artist_name}': #{spotify_id}"
+    spotify_id
+  else
+    puts "No artist found on Spotify with name '#{artist_name}'"
+    nil
+  end
+end
+
+def extract_youtube_channel_name(youtube_url)
+  uri = URI.parse(youtube_url)
+  if uri.host == 'www.youtube.com' && uri.path.start_with?('/@')
+    uri.path.split('/@').last
+  else
+    puts "Invalid YouTube URL format: #{youtube_url}"
+    nil
+  end
+end
+
+def fetch_youtube_channel_id(channel_name, api_key)
+  response = HTTParty.get("https://www.googleapis.com/youtube/v3/search",
+                          query: { part: 'snippet', q: channel_name, type: 'channel', maxResults: 1, key: api_key })
+
+  if response.code == 200 && response["items"].any?
+    youtube_id = response["items"].first["id"]["channelId"]
+    puts "YouTube Channel ID for '#{channel_name}': #{youtube_id}"
+    youtube_id
+  else
+    puts "No channel found on YouTube with name '#{channel_name}'"
+    nil
+  end
+end
+
+def create_artist_mappings(artists, spotify_access_token, youtube_api_key)
+  artists.each do |artist|
+    spotify_id = fetch_spotify_artist_id(artist[:spotify_name], spotify_access_token)
+    youtube_channel_name = extract_youtube_channel_name(artist[:youtube_url])
+    youtube_id = youtube_channel_name ? fetch_youtube_channel_id(youtube_channel_name, youtube_api_key) : nil
+
+    if spotify_id && youtube_id
+      ArtistMapping.find_or_create_by(spotify_id: spotify_id, youtube_id: youtube_id)
+      puts "Created mapping for Spotify ID '#{spotify_id}' and YouTube ID '#{youtube_id}'"
+    else
+      puts "Failed to retrieve both IDs for #{artist[:spotify_name]} / #{artist[:youtube_url]}"
+    end
+  end
+end
+
+# Example usage
+artists = [
+  { spotify_name: "Bruno & Marrone", youtube_url: "https://www.youtube.com/@brunoemarroneoficial" },
+  { spotify_name: "Matuê", youtube_url: "https://www.youtube.com/@30PRAUM" },
+]
+
+spotify_access_token = get_spotify_access_token # Ensure you have a valid Spotify access token
+youtube_api_key = ENV['YOUTUBE_API_KEY']
+
+create_artist_mappings(artists, spotify_access_token, youtube_api_key)
+
+
 # Seed users
 require 'faker'
 
-# Create 19 fake users
-21.times do
-  user = User.create!(
-    email: Faker::Internet.email,
-    display_name: Faker::Name.name,
-    spotify_id: Faker::Alphanumeric.alphanumeric(number: 10),
-    profile_image_url: Faker::Avatar.image,
-    spotify_profile_url: "https://open.spotify.com/user/#{Faker::Alphanumeric.alphanumeric(number: 10)}"
-  )
-  puts "Created user: #{user.display_name}"
+# # Create 19 fake users
+# 21.times do
+#   user = User.create!(
+#     email: Faker::Internet.email,
+#     display_name: Faker::Name.name,
+#     spotify_id: Faker::Alphanumeric.alphanumeric(number: 10),
+#     profile_image_url: Faker::Avatar.image,
+#     spotify_profile_url: "https://open.spotify.com/user/#{Faker::Alphanumeric.alphanumeric(number: 10)}"
+#   )
+#   puts "Created user: #{user.display_name}"
 
-  # Assign artist stats for every existing artist to this user
-  Artist.find_each do |artist|
-    ArtistStat.create!(
-      user: user,
-      artist: artist,
-      points: rand(1..1000)  # Assign random points between 1 and 1000
-    )
-  end
-  puts "Assigned artist stats for user: #{user.display_name}"
-end
+#   # Assign artist stats for every existing artist to this user
+#   Artist.find_each do |artist|
+#     ArtistStat.create!(
+#       user: user,
+#       artist: artist,
+#       points: rand(1..1000)  # Assign random points between 1 and 1000
+#     )
+#   end
+#   puts "Assigned artist stats for user: #{user.display_name}"
+# end
 
-puts "Seeding completed with 21 users and artist stats for every artist!"
+# puts "Seeding completed with 21 users and artist stats for every artist!"

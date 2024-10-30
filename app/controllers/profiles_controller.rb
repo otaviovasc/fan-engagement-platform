@@ -2,54 +2,40 @@ class ProfilesController < ApplicationController
   before_action :authenticate_user!
 
   def show
-    # Cache key for Spotify top artists
-    spotify_cache_key = "user/#{current_user.id}/spotify_top_artists"
-    youtube_cache_key = "user/#{current_user.id}/youtube_recent_artists"
-
-    # Fetch Spotify data only if the user is connected and data is not cached or expired
     if current_user.spotify_connected?
-      @spotify_top_artists = Rails.cache.fetch(spotify_cache_key, expires_in: 1.hour) do
-        fetch_user_top_artists_spotify
-      end
+      current_user.ensure_valid_access_token
+      fetch_user_top_artists_spotify
     end
 
-    # Fetch YouTube data only if the user is connected and data is not cached or expired
     if current_user.youtube_connected?
-      @youtube_recent_artists = Rails.cache.fetch(youtube_cache_key, expires_in: 1.hour) do
-        fetch_user_recently_played_youtube
-      end
+      current_user.ensure_valid_youtube_access_token
+      fetch_user_recently_played_youtube
     end
 
-    # Fetch top artists from the database based on ArtistStat points
     @top_artists = current_user.artist_stats.includes(:artist).order(points: :desc).limit(20).map(&:artist)
   end
 
   # def show
-  #   @top_artists = []
+  #   # Cache key for Spotify top artists
+  #   spotify_cache_key = "user/#{current_user.id}/spotify_top_artists"
+  #   youtube_cache_key = "user/#{current_user.id}/youtube_recent_artists"
 
+  #   # Fetch Spotify data only if the user is connected and data is not cached or expired
   #   if current_user.spotify_connected?
-  #     spotify_cache_key = "#{current_user.id}/spotify_top_artists"
-  #     spotify_artists = Rails.cache.fetch(spotify_cache_key, expires_in: 1.hour) do
+  #     @spotify_top_artists = Rails.cache.fetch(spotify_cache_key, expires_in: 1.hour) do
   #       fetch_user_top_artists_spotify
   #     end
-  #     @top_artists.concat(spotify_artists) if spotify_artists
   #   end
 
+  #   # Fetch YouTube data only if the user is connected and data is not cached or expired
   #   if current_user.youtube_connected?
-  #     youtube_cache_key = "#{current_user.id}/youtube_recent_artists"
-  #     youtube_artists = Rails.cache.fetch(youtube_cache_key, expires_in: 1.hour) do
+  #     @youtube_recent_artists = Rails.cache.fetch(youtube_cache_key, expires_in: 1.hour) do
   #       fetch_user_recently_played_youtube
   #     end
-  #     @top_artists.concat(youtube_artists) if youtube_artists
   #   end
 
-  #   # Fetch top artists from the database
-  #   @top_artists.concat(current_user.artist_stats.includes(:artist).order(points: :desc).limit(20).map(&:artist))
-
-  #   # Optional: Set cache expiration time for the frontend based on the shortest expiration of the two keys
-  #   spotify_exp = Rails.cache.read("#{spotify_cache_key}_expires_at") if current_user.spotify_connected?
-  #   youtube_exp = Rails.cache.read("#{youtube_cache_key}_expires_at") if current_user.youtube_connected?
-  #   @cache_expires_at = [spotify_exp, youtube_exp].compact.min || (Time.now + 1.hour)
+  #   # Fetch top artists from the database based on ArtistStat points
+  #   @top_artists = current_user.artist_stats.includes(:artist).order(points: :desc).limit(20).map(&:artist)
   # end
 
   private
@@ -192,8 +178,11 @@ class ProfilesController < ApplicationController
       channel_id = video_details['snippet']['channelId']
       channel_title = video_details['snippet']['channelTitle']
 
-      # Attempt to find an existing artist using fuzzy matching
-      artist = Artist.find_by_fuzzy_name(channel_title)
+      # Try to find the artist by YouTube ID in the mapping
+      artist = Artist.joins(:artist_mapping).find_by(artist_mappings: { youtube_id: channel_id })
+
+      # If no mapped artist is found, use fuzzy matching as a fallback
+      artist ||= Artist.find_by_fuzzy_name(channel_title)
 
       if artist
         # If a match is found, update the YouTube ID if it isn't already set

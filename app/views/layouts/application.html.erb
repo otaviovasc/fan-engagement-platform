@@ -21,39 +21,44 @@
 <body>
   <!-- Navbar Comum -->
   <% unless controller_name == 'home' && action_name == 'signup' %>
-    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+    <nav class="navbar navbar-light bg-white border-bottom">
       <div class="container-fluid position-relative d-flex justify-content-between align-items-center">
-        <!-- Hamburger (Toggler) always visible on the left -->
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <!-- Hamburger (Toggler) - Triggers Offcanvas Sidebar -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSidebar" aria-controls="offcanvasSidebar" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
 
         <!-- Centered Brand (Logo) -->
         <a class="navbar-brand text-main-yellow fw-bold position-absolute start-50 translate-middle-x" href="/">Mida Music</a>
-
-        <!-- Right-aligned buttons -->
-        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-          <ul class="navbar-nav">
-            <% if current_user %>
-              <li class="nav-item">
-                <%= link_to 'Profile', profile_path, class: 'nav-link' %>
-              </li>
-              <li class="nav-item">
-                <!-- Logout button -->
-                <%= button_to 'Logout', logout_path, method: :delete, class: 'btn btn-outline-dark me-2' %>
-              </li>
-            <% else %>
-              <li class="nav-item">
-                <a href="/signup" class="btn btn-outline-dark me-2">Log In To Mida</a>
-              </li>
-              <li class="nav-item">
-                <%=link_to 'Become a fan', new_user_waitlist_path, class: 'btn bg-main-yellow text-white'%>
-              </li>
-            <% end %>
-          </ul>
-        </div>
       </div>
     </nav>
+
+    <!-- Offcanvas Sidebar - Visible on smaller screens -->
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasSidebar" aria-labelledby="offcanvasSidebarLabel">
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasSidebarLabel">Menu</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+        <ul class="navbar-nav">
+          <% if current_user %>
+            <li class="nav-item mb-3">
+              <%= link_to 'Profile', profile_path, class: 'nav-link' %>
+            </li>
+            <li class="nav-item mb-3">
+              <%= button_to 'Logout', logout_path, method: :delete, class: 'btn btn-outline-dark' %>
+            </li>
+          <% else %>
+            <li class="nav-item mb-3">
+              <a href="/signup" class="btn btn-outline-dark">Log In To Mida</a>
+            </li>
+            <li class="nav-item mb-3">
+              <%= link_to 'Become a fan', new_user_waitlist_path, class: 'btn bg-main-yellow text-white' %>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
   <% end %>
 
 <div>
@@ -85,3 +90,9 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
+<style>
+  .offcanvas-80 {
+    width: 80%;
+  }
+</style>
