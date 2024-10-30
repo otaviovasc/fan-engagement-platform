@@ -194,11 +194,15 @@ ul.list-group .list-group-item .text-dark {
 
     .bg-rectangle {
       background-image: url('rectangle.png');
-      background-size: cover;
+      background-size: contain; /* Changes from cover to contain */
+      background-repeat: no-repeat; /* Prevents the image from repeating */
+      background-position: center; /* Centers the image */
+      width: 100%; /* Ensures it spans the full width of the container */
+      height: auto; /* Allows the height to adjust based on width */
     }
 
     .reward-icon {
-      font-size: 96px;
+      font-size: 4rem;
       color: #ffffff; // Yellow color for icon
     }
   }
