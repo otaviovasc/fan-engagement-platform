@@ -155,9 +155,9 @@ ul.list-group .list-group-item .text-dark {
 }
 
 .highlighted {
-  background-color: #FFC107; /* Your chosen highlight color */
-  color: white;
-  font-weight: bold;
+  background-color: #FFb000 !important; /* Your chosen highlight color */
+  color: white !important;
+  font-weight: bold !important;
 }
 
 
@@ -184,32 +184,48 @@ ul.list-group .list-group-item .text-dark {
 
     .text-place{
       color: #fffa00;
+      font-size: 36px;
     }
 
     .reward-card {
-      padding: 20px;
+      padding: 4vw;
       border-radius: 8px;
     }
 
-    .reward-icon {
-      font-size: 48px;
-      color: #ffffff; // Yellow color for icon
+    .bg-rectangle {
+      background-image: url('rectangle.png');
+      background-size: cover;
     }
 
-    .carousel-control-prev-icon,
-    .carousel-control-next-icon {
-      background-color: #ffeb3b;
-      border-radius: 50%;
-      width: 32px;
-      height: 32px;
+    .reward-icon {
+      font-size: 96px;
+      color: #ffffff; // Yellow color for icon
     }
   }
 }
 
+.daily-missions-title {
+  font-weight: bold;
+  color: #000;
+}
+
+.daily-missions-list {
+  list-style-type: none;
+  padding: 0;
+}
+
 .mission-item {
-  background-color: #fff8e1; // Light yellow background for items
-  .badge {
-    font-size: 14px;
-    font-weight: bold;
-  }
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border: 2px solid #ffb000; /* Border color for non-highlighted items */
+  border-radius: 8px;
+  font-size: 16px;
+  color: #ffb000;
+  margin-top: 10px;
+}
+
+.points {
+  font-weight: bold;
 }
