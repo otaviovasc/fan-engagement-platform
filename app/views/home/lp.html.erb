@@ -6,7 +6,7 @@
     <p class="lead mt-3 text-start mb-0">Discover a platform designed to bridge lasting relationships</p>
     <p class="lead text-start mb-0">between artists and music lovers. Connect with your idols, compete</p>
     <p class="lead text-start">for rewards and discover a passionate community.</p>
-    <%= link_to 'Join Waitlist', new_user_waitlist_path, class: 'btn bg-main-yellow text-white btn-lg mt-3' %>
+    <%= link_to 'Early Access', new_user_waitlist_path, class: 'btn bg-main-yellow text-white mt-3' %>
   </div>
 </section>
 
@@ -78,11 +78,11 @@
 
     <div class="signup-buttons">
       <%= button_to "/auth/spotify", method: :post, data: { turbo: false }, class: "btn-signup" do %>
-        <%= image_tag "spotify-icon.png", alt: "Spotify Icon" %> Continue with Spotify
+        <%= image_tag "spotify-icon.png", alt: "Spotify Icon" %> Spotify
       <% end %>
 
       <%= button_to "/auth/google_oauth2", method: :post, data: { turbo: false }, class: "btn-signup" do %>
-        <%= image_tag "youtube-icon.png", alt: "Youtube Icon" %> Continue with Youtube
+        <%= image_tag "youtube-icon.png", alt: "Youtube Icon" %> Youtube
       <% end %>
     </div>
 
