@@ -10,7 +10,7 @@ class User < ApplicationRecord
 
   # Check if user is connected to YouTube
   def youtube_connected?
-    youtube_access_token.present?
+    youtube_access_token.present? && youtube_id.present?
   end
 
   # Check if Spotify access token is valid
@@ -40,12 +40,16 @@ class User < ApplicationRecord
 
   # Refresh YouTube access token
   def refresh_youtube_access_token
-    response = HTTParty.post('https://oauth2.googleapis.com/token', body: {
-      grant_type: 'refresh_token',
-      refresh_token: self.youtube_refresh_token,
-      client_id: ENV['YOUTUBE_CLIENT_ID'],
-      client_secret: ENV['YOUTUBE_CLIENT_SECRET']
-    })
+    response = HTTParty.post(
+      'https://oauth2.googleapis.com/token',
+      headers: { 'Content-Type' => 'application/x-www-form-urlencoded' },
+      body: URI.encode_www_form({
+        grant_type: 'refresh_token',
+        refresh_token: self.youtube_refresh_token,
+        client_id: ENV['GOOGLE_CLIENT_ID'],
+        client_secret: ENV['GOOGLE_CLIENT_SECRET']
+      })
+    )
 
     if response.code == 200
       self.update(youtube_access_token: response.parsed_response['access_token'])

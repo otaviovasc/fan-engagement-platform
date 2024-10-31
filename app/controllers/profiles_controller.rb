@@ -2,10 +2,10 @@ class ProfilesController < ApplicationController
   before_action :authenticate_user!
 
   def show
-    if current_user.spotify_connected?
+    # if current_user.spotify_connected?
       current_user.ensure_valid_access_token
       fetch_user_top_artists_spotify
-    end
+    # end
 
     if current_user.youtube_connected?
       current_user.ensure_valid_youtube_access_token
@@ -42,7 +42,6 @@ class ProfilesController < ApplicationController
 
   # Fetch Spotify Top Artists
   def fetch_user_top_artists_spotify
-    current_user.ensure_valid_access_token
 
     # Fetch and store any new recently played tracks from Spotify
     fetch_recently_played_tracks

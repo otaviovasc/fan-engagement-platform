@@ -34,7 +34,6 @@ class SessionsController < ApplicationController
 
     case auth.provider
     when 'spotify'
-      user.ensure_valid_access_token
       spotify_attributes = {
         spotify_id: auth.uid,
         access_token: auth.credentials.token,
@@ -48,7 +47,6 @@ class SessionsController < ApplicationController
       user.update(spotify_attributes)
 
     when 'google_oauth2'
-      user.ensure_valid_youtube_access_token
       youtube_attributes = {
         youtube_id: auth.uid,
         youtube_access_token: auth.credentials.token,

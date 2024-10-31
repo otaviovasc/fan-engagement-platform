@@ -180,11 +180,12 @@ ul.list-group .list-group-item .text-dark {
   .carousel-inner {
     p {
       color: #ffffff;
+      font-size: 18px;
     }
 
     .text-place{
       color: #fffa00;
-      font-size: 36px;
+      font-size: 28px;
     }
 
     .reward-card {
@@ -193,12 +194,8 @@ ul.list-group .list-group-item .text-dark {
     }
 
     .bg-rectangle {
-      background-image: url('rectangle.png');
-      background-size: contain; /* Changes from cover to contain */
-      background-repeat: no-repeat; /* Prevents the image from repeating */
-      background-position: center; /* Centers the image */
-      width: 100%; /* Ensures it spans the full width of the container */
-      height: auto; /* Allows the height to adjust based on width */
+      background-color: #ffb000;
+      margin: 2vw;
     }
 
     .reward-icon {
@@ -216,6 +213,7 @@ ul.list-group .list-group-item .text-dark {
 .daily-missions-list {
   list-style-type: none;
   padding: 0;
+  overflow-y: auto;
 }
 
 .mission-item {
