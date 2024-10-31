@@ -66,6 +66,6 @@ class User < ApplicationRecord
 
   # Ensure YouTube access token is valid
   def ensure_valid_youtube_access_token
-    refresh_youtube_access_token unless youtube_access_token_valid?
+    refresh_youtube_access_token
   end
 end
