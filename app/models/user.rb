@@ -13,16 +13,6 @@ class User < ApplicationRecord
     youtube_access_token.present? && youtube_id.present?
   end
 
-  # Check if Spotify access token is valid
-  def access_token_valid?
-    (self.updated_at + 1.hour) > Time.now
-  end
-
-  # Check if YouTube access token is valid
-  def youtube_access_token_valid?
-    (self.updated_at + 1.hour) > Time.now
-  end
-
   # Refresh Spotify access token
   def refresh_access_token
     response = HTTParty.post('https://accounts.spotify.com/api/token', body: {
@@ -33,6 +23,7 @@ class User < ApplicationRecord
     })
     if response.code == 200
       self.update(access_token: response.parsed_response['access_token'])
+      puts "Spotify Access token refreshed #{response.parsed_response['access_token']}"
     else
       false
     end
@@ -53,6 +44,7 @@ class User < ApplicationRecord
 
     if response.code == 200
       self.update(youtube_access_token: response.parsed_response['access_token'])
+      puts "YouTube Access token refreshed #{response.parsed_response['access_token']}"
     else
       Rails.logger.error "YouTube token refresh failed: #{response.body}"
       false
@@ -61,7 +53,7 @@ class User < ApplicationRecord
 
   # Ensure Spotify access token is valid
   def ensure_valid_access_token
-    refresh_access_token unless access_token_valid?
+    refresh_access_token
   end
 
   # Ensure YouTube access token is valid

@@ -2,16 +2,23 @@ class ProfilesController < ApplicationController
   before_action :authenticate_user!
 
   def show
-    # if current_user.spotify_connected?
+    if current_user.spotify_connected?
       current_user.ensure_valid_access_token
       fetch_user_top_artists_spotify
-    # end
+    end
 
     if current_user.youtube_connected?
+      puts "Fetching YouTube data"
       current_user.ensure_valid_youtube_access_token
       fetch_user_recently_played_youtube
     end
 
+    # Update each artist_stat's total points based on spotify_points and youtube_points
+    current_user.artist_stats.each do |artist_stat|
+      artist_stat.update(points: artist_stat.spotify_points + artist_stat.youtube_points)
+    end
+
+    # Fetch top artists based on the updated points
     @top_artists = current_user.artist_stats.includes(:artist).order(points: :desc).limit(20).map(&:artist)
   end
 
@@ -69,7 +76,7 @@ class ProfilesController < ApplicationController
 
       # Update or initialize ArtistStat with points based on last month's listening time
       artist_stat = ArtistStat.find_or_initialize_by(user: current_user, artist: artist)
-      artist_stat.points = 100 + (total_listening_time * 10)  # Set points based on current listening time
+      artist_stat.spotify_points = total_listening_time * 10
       artist_stat.save
     end
     artists
@@ -198,13 +205,14 @@ class ProfilesController < ApplicationController
           # Calculate points only if the video hasn't been processed before
           artist_stat.processed_videos << video_id
 
-          # Check if the user is subscribed to the artist's YouTube channel
-          if user_subscribed_to_channel?(channel_id)
-            artist_stat.points += 100 # 100 points for being subscribed (only if not added before)
+          # Add 100 points for subscription only if they haven't been added before
+          if user_subscribed_to_channel?(channel_id) && !artist_stat.subscribed_points_added
+            artist_stat.youtube_points += 100
+            artist_stat.subscribed_points_added = true  # Add a boolean attribute to track this
           end
 
           # Add points for each new liked video
-          artist_stat.points += 40 # 40 points per new liked video
+          artist_stat.youtube_points += 40 # 40 points per new liked video
         end
 
         # Update processed_videos and save the updated stats
