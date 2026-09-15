@@ -1,4 +1,19 @@
-# Mida Music V1
+# Fan Engagement Platform
+
+> Freelance project, originally built as "Mida Music V1".
+
+**English summary** — A gamified fan-engagement platform that connects to fans'
+Spotify and YouTube accounts and turns listening activity into competition:
+
+- OAuth connection to Spotify and YouTube with automatic data sync (top artists, recently played, liked music videos);
+- points engine: listening time and monthly per-artist bonuses on Spotify; likes and music-channel subscriptions on YouTube;
+- per-artist leaderboards refreshed hourly by background jobs;
+- daily missions and seasonal rewards (tickets, merchandise).
+
+Built with Ruby on Rails, OmniAuth (Spotify/YouTube), and PostgreSQL. Full
+documentation below is in Portuguese.
+
+---
 
 ## Descrição Geral
 Este é um projeto Ruby on Rails que integra Spotify e YouTube para monitorar atividades musicais dos usuários, permitindo um sistema de gamificação com leaderboards e recompensas. Usuários podem se engajar com seus artistas favoritos, acumular pontos e competir por prêmios sazonais.
